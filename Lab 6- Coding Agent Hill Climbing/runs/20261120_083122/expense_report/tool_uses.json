@@ -1,0 +1,24 @@
+[
+  {
+    "invocation_id": "e-440c90f9-2c84-4aae-a73c-19cfb5c273b6",
+    "tool_uses": [
+      {
+        "id": "call_15294822288537329290",
+        "args": {
+          "path": "src/ledger.py",
+          "contents": "import sys\nimport csv\nimport math\nfrom decimal import Decimal, ROUND_HALF_UP\nfrom collections import defaultdict\n\ndef format_money(amount):\n    \"\"\"Formats a decimal amount to 2 decimal places, rounded half-up.\"\"\"\n    return amount.quantize(Decimal(\"0.00\"), rounding=ROUND_HALF_UP)\n\ndef parse_input():\n    \"\"\"Reads from stdin and parses CSV records.\"\"\"\n    records = []\n    try:\n        reader = csv.reader(sys.stdin)\n        for i, row in enumerate(reader, 1):\n            if not row:\n                continue\n            if len(row) != 3:\n                print(f\"Error: malformed line {i}\", file=sys.stderr)\n                sys.exit(2)\n            \n            date, category, amount_str = row\n            try:\n                amount = Decimal(amount_str)\n            except:\n                print(f\"Error: malformed amount on line {i}\", file=sys.stderr)\n                sys.exit(2)\n            \n            records.append({'category': category.strip(), 'amount': amount})\n    except Exception as e:\n        print(f\"Error reading input: {e}\", file=sys.stderr)\n        sys.exit(2)\n    return records\n\ndef get_category_totals(records):\n    totals = defaultdict(Decimal)\n    for r in records:\n        totals[r['category']] += r['amount']\n    return totals\n\ndef sort_categories(totals):\n    # Sort by amount descending, then by category name ascending\n    # Since we want descending amount, we can negate the amount for comparison\n    # but since they are Decimals, we use a tuple key: (-amount, name)\n    return sorted(totals.items(), key=lambda item: (-item[1], item[0]))\n\ndef main():\n    if len(sys.argv) < 2:\n        print(\"Usage error: missing command\", file=sys.stderr)\n        sys.exit(2)\n\n    command = sys.argv[1]\n    records = parse_input()\n\n    if command == \"total\":\n        total = sum((r['amount'] for r in records), Decimal(0))\n        print(f\"{format_money(total):.2f}\")\n\n    elif command == \"count\":\n        print(len(records))\n\n    elif command == \"average\":\n        if not records:\n            print(\"0.00\")\n        else:\n            total = sum((r['amount'] for r in records), Decimal(0))\n            avg = total / len(records)\n            print(f\"{format_money(avg):.2f}\")\n\n    elif command == \"categories\":\n        totals = get_category_totals(records)\n        sorted_cats = sort_categories(totals)\n        for cat, amt in sorted_cats:\n            print(f\"{cat}: {format_money(amt):.2f}\")\n\n    elif command == \"top\":\n        if len(sys.argv) < 3:\n            print(\"Usage error: missing N for top command\", file=sys.stderr)\n            sys.exit(2)\n        try:\n            n = int(sys.argv[2])\n        except ValueError:\n            print(\"Usage error: N must be an integer\", file=sys.stderr)\n            sys.exit(2)\n        \n        totals = get_category_totals(records)\n        sorted_cats = sort_categories(totals)\n        for cat, amt in sorted_cats[:n]:\n            print(f\"{cat}: {format_money(amt):.2f}\")\n\n    elif command == \"category\":\n        if len(sys.argv) < 3:\n            print(\"Usage error: missing category name\", file=sys.stderr)\n            sys.exit(2)\n        target_cat = sys.argv[2]\n        totals = get_category_totals(records)\n        if target_cat not in totals:\n            print(f\"Error: category '{target_cat}' not found\", file=sys.stderr)\n            sys.exit(1)\n        print(f\"{format_money(totals[target_cat]):.2f}\")\n\n    else:\n        print(f\"Usage error: unknown command '{command}'\", file=sys.stderr)\n        sys.exit(2)\n\nif __name__ == \"__main__\":\n    main()\n"
+        },
+        "name": "write_file"
+      }
+    ],
+    "tool_responses": [
+      {
+        "id": "call_15294822288537329290",
+        "name": "write_file",
+        "response": {
+          "result": "Wrote 3514 chars to src/ledger.py"
+        }
+      }
+    ]
+  }
+]
