@@ -1,9 +1,0 @@
-{
-  "task_id": "invoice_report",
-  "model": "gemini-3.1-flash-lite",
-  "passed": true,
-  "tool_calls": 25,
-  "seconds": 23.5,
-  "stop_reason": "completed",
-  "detail": ""
-}

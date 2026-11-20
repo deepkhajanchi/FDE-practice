@@ -1,9 +1,0 @@
-{
-  "task_id": "range_list",
-  "model": "gemini-3.1-flash-lite",
-  "passed": false,
-  "tool_calls": 0,
-  "seconds": 10.7,
-  "stop_reason": "error",
-  "detail": "[Errno -3] Temporary failure in name resolution"
-}

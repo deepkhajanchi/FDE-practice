@@ -1,9 +1,0 @@
-{
-  "task_id": "reminder_time",
-  "model": "gemini-3.1-flash-lite",
-  "passed": true,
-  "tool_calls": 18,
-  "seconds": 22.9,
-  "stop_reason": "completed",
-  "detail": ""
-}
