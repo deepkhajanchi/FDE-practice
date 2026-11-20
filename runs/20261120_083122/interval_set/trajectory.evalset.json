@@ -1,0 +1,123 @@
+{
+  "eval_set_id": "interval_set",
+  "name": "interval_set trajectory",
+  "description": "Actual trajectory the agent took on task 'interval_set'. Harvested from session events; the task is graded out-of-band by tasks/interval_set/tests/hidden.py.",
+  "eval_cases": [
+    {
+      "eval_id": "interval_set",
+      "conversation": [
+        {
+          "invocation_id": "e-f3e73574-2a01-4e85-afec-439008b00e30",
+          "user_content": {
+            "parts": [
+              {
+                "text": "# intervals — interval-set operations\n\nBuild a command-line program at **`src/intervals.py`**. It reads intervals from\n**stdin**, one per line as `start end` (two **decimal** numbers with\n`start <= end`); the query is the first command-line argument. Ignore blank lines.\n\n    python src/intervals.py <command> [args]\n\nIntervals are **inclusive**. Intervals that overlap **or merely touch** are merged\n(so `1 3` and `3 5` merge into `1 5`).\n\n## Commands\n\n- `merge` — the merged intervals, one per line as `start end`, sorted by start.\n  Print each coordinate as a plain decimal with **trailing zeros trimmed** (so\n  `4.0` prints as `4`, `1.50` as `1.5`).\n- `count` — the number of merged intervals.\n- `length` — the total length covered (the sum of `end - start` over the merged\n  intervals), printed with **exactly two decimals, rounded half-up** (so a total\n  of `3.675` prints as `3.68`).\n- `covers X` — print `yes` if the decimal `X` lies inside any interval (inclusive),\n  otherwise `no`.\n\nA malformed line (not two numbers, or `start > end`) is an input error: print to\n**stderr** and exit `2`. Any other command, or no command, is also a usage error:\nprint to **stderr** and exit `2`.\n\n## Example\n\nFor the intervals `0 2.675` and `5 6`:\n\n- `merge` prints `0 2.675` then `5 6`.\n- `count` prints `2`.\n- `length` prints `3.68` (2.675 + 1 = 3.675, rounded half-up).\n- `covers 2` prints `yes`; `covers 4` prints `no`.\n\n(For `1.5 3.5` and `3.5 4.0`, `merge` prints `1.5 4` — they touch, and `4.0` is\ntrimmed to `4`.)"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "The implementation for the `intervals` utility has been created in `src/intervals.py`.\n\nIt handles the following requirements:\n1.  **Parsing:** Reads from stdin, skips blank lines, and validates that input lines contain two valid decimal numbers with `start <= end`. It exits with code `2` on malformed input.\n2.  **Merging:** Uses a standard sweep-line approach: sort by start time, then iterate to merge overlapping or touching intervals (`start <= current_end`).\n3.  **Commands:**\n    *   `merge`: Prints sorted, merged intervals with normalized decimal strings (no trailing zeros).\n    *   `count`: Prints the number of merged intervals.\n    *   `length`: Calculates the total duration using `decimal` arithmetic and formats using `ROUND_HALF_UP` to two decimal places.\n    *   `covers X`: Checks if `X` is contained within any merged interval.\n4.  **Error Handling:** Proper stderr output and exit codes for usage errors or bad input.",
+                "thought_signature": "AY89a19TWfDgjxyDwGQ7f8KvsOoTEEo5lBs_vW0mvlvQ9kFNYH8x69WM1PZ9LOoDpgIMzZYfpFBUVAcFO4NgwlO4twa6U30xuDT0P3cDDtDIeCPU3t03qhUj08168EoeBmtglqhqKFpAXFTmnK3YoHdh9HpesP5d6NxZVjcg8B9CBBJE"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "invocation_events": [
+              {
+                "author": "coding_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_3487767947420200447",
+                        "args": {
+                          "contents": "import sys\nimport decimal\nimport argparse\n\ndef format_decimal(d):\n    \"\"\"\n    Format a decimal number:\n    - Remove trailing zeros.\n    - Remove trailing decimal point if unnecessary.\n    \"\"\"\n    if d == d.to_integral_value():\n        return str(d.to_integral_value())\n    return d.normalize().to_eng_string()\n\ndef parse_intervals():\n    intervals = []\n    for line_num, line in enumerate(sys.stdin, 1):\n        line = line.strip()\n        if not line:\n            continue\n        parts = line.split()\n        if len(parts) != 2:\n            print(f\"Error: Malformed line {line_num}: expected 2 numbers.\", file=sys.stderr)\n            sys.exit(2)\n        try:\n            start = decimal.Decimal(parts[0])\n            end = decimal.Decimal(parts[1])\n        except decimal.InvalidOperation:\n            print(f\"Error: Malformed line {line_num}: invalid numbers.\", file=sys.stderr)\n            sys.exit(2)\n        \n        if start > end:\n            print(f\"Error: Malformed line {line_num}: start > end.\", file=sys.stderr)\n            sys.exit(2)\n        intervals.append((start, end))\n    return intervals\n\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    \n    # Sort by start time\n    intervals.sort(key=lambda x: x[0])\n    \n    merged = []\n    curr_start, curr_end = intervals[0]\n    \n    for i in range(1, len(intervals)):\n        next_start, next_end = intervals[i]\n        \n        # Merge if they overlap or touch (next_start <= curr_end)\n        if next_start <= curr_end:\n            curr_end = max(curr_end, next_end)\n        else:\n            merged.append((curr_start, curr_end))\n            curr_start, curr_end = next_start, next_end\n            \n    merged.append((curr_start, curr_end))\n    return merged\n\ndef main():\n    if len(sys.argv) < 2:\n        print(\"Usage: python src/intervals.py <command> [args]\", file=sys.stderr)\n        sys.exit(2)\n\n    command = sys.argv[1]\n    intervals = parse_intervals()\n    merged = merge_intervals(intervals)\n\n    if command == 'merge':\n        for start, end in merged:\n            print(f\"{format_decimal(start)} {format_decimal(end)}\")\n            \n    elif command == 'count':\n        print(len(merged))\n        \n    elif command == 'length':\n        total = sum((end - start for start, end in merged), decimal.Decimal(0))\n        # Round half-up to 2 decimal places\n        quantized = total.quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_HALF_UP)\n        print(f\"{quantized:.2f}\")\n        \n    elif command == 'covers':\n        if len(sys.argv) != 3:\n            print(\"Usage: python src/intervals.py covers <number>\", file=sys.stderr)\n            sys.exit(2)\n        try:\n            x = decimal.Decimal(sys.argv[2])\n        except decimal.InvalidOperation:\n            print(f\"Error: '{sys.argv[2]}' is not a valid number.\", file=sys.stderr)\n            sys.exit(2)\n            \n        found = False\n        for start, end in merged:\n            if start <= x <= end:\n                found = True\n                break\n        print(\"yes\" if found else \"no\")\n        \n    else:\n        print(f\"Error: Unknown command '{command}'\", file=sys.stderr)\n        sys.exit(2)\n\nif __name__ == \"__main__\":\n    main()\n",
+                          "path": "src/intervals.py"
+                        },
+                        "name": "write_file"
+                      },
+                      "thought_signature": "AY89a1_rO0PnCRTM09i0PH8aQApVBjqOWqHRGDPEzGcbCJO6Co_R93hLKUATR9GzJmO0mpZGItbOEm7aaFVtv3v-eTHmwgrlv1l0lctrehQ2fgs-W40mL6mG9Q_qX5F30ACfbzgqrAqCnegJKxFTiH7Pyat3pzM7bqiyDqhbU5SBaFuX1NVPVFQ6NwY7Ja9kyLWLMfMt-VEg8QsYkdoHe7HfWcQwQxDiBfr7mBK4DEi1a09C4Wp6Jq5AGXUDySruAnfGuCY01l8IB3bg2zpkk6xmMO-j5qQems8u4gjrLd1rPOg8g-xJQd0LGmVytv0GW8efralnszXNT_ZhtqaKdUGG3Olu_zQ-FOcbr10xcBhbucq1mdhGxeNklSIF8gF_r-YzO4vJ41c8R3fdTtXlCB5o2LnEZr1GJJfcg6TFrJRf0VpuK2adRc-EC4FGWTi3VMeZ2BU6tZ6sMALKSw_6zsWPCyncV2Q4q_vFTNaeVY8Z0yQiIfqADerMxQzphucgLIXyKrnagT-pXcXz_HyZf72D27cWipoQSRJzOd7WGrGfqkkDW-8IgOSsCsvXQhI1EwSk_FRMPaawqa2vNvMAIVphz3Uz6t914awDmq3W4afUdrt2INlSSYLGpZ7Uaz2ouNZ6A6FSgiZ37WfQcVrwcrY2FFiYYaAhWOjyQN8tmN6FwWuRQfZjrzTbWi91xnPxZPgJjDiJbbLM6mNKA6ZFZYAUAeIX_QfUmlBnZKOe9rrFF7X2s_HWlxzH-veb4yB5-M98"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "usage_metadata": {
+                  "candidates_token_count": 953,
+                  "candidates_tokens_details": [
+                    {
+                      "modality": "TEXT",
+                      "token_count": 953
+                    }
+                  ],
+                  "prompt_token_count": 637,
+                  "prompt_tokens_details": [
+                    {
+                      "modality": "TEXT",
+                      "token_count": 637
+                    }
+                  ],
+                  "thoughts_token_count": 109,
+                  "total_token_count": 1699,
+                  "traffic_type": "PROVISIONED_THROUGHPUT"
+                },
+                "model_version": "gemini-3.1-flash-lite"
+              },
+              {
+                "author": "coding_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_3487767947420200447",
+                        "name": "write_file",
+                        "response": {
+                          "result": "Wrote 3209 chars to src/intervals.py"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "coding_agent",
+                "usage_metadata": {
+                  "candidates_token_count": 218,
+                  "candidates_tokens_details": [
+                    {
+                      "modality": "TEXT",
+                      "token_count": 218
+                    }
+                  ],
+                  "prompt_token_count": 1710,
+                  "prompt_tokens_details": [
+                    {
+                      "modality": "TEXT",
+                      "token_count": 1710
+                    }
+                  ],
+                  "total_token_count": 1928,
+                  "traffic_type": "PROVISIONED_THROUGHPUT"
+                },
+                "model_version": "gemini-3.1-flash-lite"
+              }
+            ]
+          },
+          "creation_timestamp": 1795163482.7028263
+        }
+      ],
+      "session_input": {
+        "app_name": "InMemoryRunner",
+        "user_id": "student",
+        "state": {}
+      },
+      "creation_timestamp": 0.0,
+      "final_session_state": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

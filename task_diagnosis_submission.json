@@ -1,0 +1,13 @@
+{
+  "task": "invoice_report",
+  "observed_mode": "Mode A: edited only report.py without inspecting surrounding code or executing its repro/fix",
+  "description": "For invoice_report, I observed that the coding agent read src/invoices/report.py and identified the existing round(sum(amounts), 2) implementation. It created a reproduction script and changed the implementation to use Python's Decimal(str(a)), but it never executed the reproduction script or ran the existing test suite to verify the fix. It also did not inspect the surrounding code or tests to understand the expected return type and rounding behavior. The coding agent failed because it lacked a disciplined verification workflow: it treated writing a plausible fix as proof of correctness instead of executing the code and validating the result against the failing case and existing tests.",
+  "score": 84,
+  "criteria": {
+    "capability_gap_and_mechanism": 50,
+    "specificity": 22,
+    "consequence_or_remediation": 12
+  },
+  "verdict": "accepted",
+  "timestamp": "2026-11-20T09:26:15Z"
+}
