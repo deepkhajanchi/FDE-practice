@@ -1,0 +1,24 @@
+# Environment & secrets (never commit credentials, PATs, or OAuth client secrets)
+.env
+.env.*
+!.env.example
+
+# Temporary downloaded Agent Cards & runtime artifacts
+salesforce_card.json
+.google-agents-cli/
+
+# Python & uv virtual environments
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Deployment & Terraform state
+deployment_metadata.json
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
