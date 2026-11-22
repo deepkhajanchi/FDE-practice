@@ -1,0 +1,15 @@
+# Virtual environments & Python caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter checkpoints & transient outputs
+.ipynb_checkpoints/
+final_metrics.json
+
+# Environment & credentials
+.env
+*.pem
+*.key
