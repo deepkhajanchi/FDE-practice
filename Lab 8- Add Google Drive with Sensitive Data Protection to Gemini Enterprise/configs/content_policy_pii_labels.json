@@ -1,0 +1,94 @@
+{
+  "contentPolicyId": "gdrive-enterprise-sdp-policy",
+  "contentPolicy": {
+    "displayName": "Gemini Enterprise Google Drive Inbound & Upload Guardrail",
+    "inspectConfig": {
+      "infoTypes": [
+        { "name": "US_SOCIAL_SECURITY_NUMBER" },
+        { "name": "CREDIT_CARD_NUMBER" },
+        { "name": "EMAIL_ADDRESS" },
+        { "name": "PHONE_NUMBER" },
+        { "name": "GCP_API_KEY" }
+      ],
+      "customInfoTypes": [
+        {
+          "infoType": {
+            "name": "CUSTOM_GOOGLE_DRIVE_LABEL_CONFIDENTIAL"
+          },
+          "likelihood": "VERY_LIKELY",
+          "fileLabelInfoType": {
+            "googleDriveLabel": {
+              "labelId": "<WORKSPACE_DRIVE_LABEL_ID>",
+              "labelFieldsToMatch": [
+                {
+                  "id": "<SENSITIVITY_FIELD_ID>",
+                  "value": "confidential"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "minLikelihood": "LIKELY",
+      "ruleSet": [
+        {
+          "infoTypes": [
+            { "name": "US_SOCIAL_SECURITY_NUMBER" },
+            { "name": "CREDIT_CARD_NUMBER" }
+          ],
+          "rules": [
+            {
+              "hotwordRule": {
+                "hotwordRegex": {
+                  "pattern": "(?i)(ssn|social\\s+security|credit\\s+card|card\\s+number)"
+                },
+                "proximity": {
+                  "windowBefore": 30,
+                  "windowAfter": 10
+                },
+                "likelihoodAdjustment": {
+                  "fixedLikelihood": "VERY_LIKELY"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "rules": [
+      {
+        "conditions": [
+          {
+            "infoTypeCondition": {
+              "anyInfoType": {}
+            }
+          }
+        ],
+        "action": {
+          "returnVerdict": "BLOCK"
+        }
+      }
+    ],
+    "unsupportedFileType": {
+      "returnVerdict": "ALLOW"
+    },
+    "inputTooLarge": {
+      "returnVerdict": "BLOCK"
+    },
+    "failedToScanSupportedFileType": {
+      "returnVerdict": "BLOCK"
+    },
+    "defaultAction": {
+      "returnVerdict": "ALLOW"
+    },
+    "loggingConfigs": [
+      {
+        "logToBigQuery": {
+          "projectId": "<PROJECT_ID>",
+          "datasetId": "sdp_governance_audit",
+          "tableId": "content_policy_verdicts"
+        }
+      }
+    ]
+  }
+}

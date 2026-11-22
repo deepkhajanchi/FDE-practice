@@ -1,0 +1,16 @@
+# Virtual environments & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Secrets & local environment overrides
+.env
+.env.*
+*.key.json
+credentials.json
+
+# Ephemeral runtime artifacts
+*.log
+.DS_Store

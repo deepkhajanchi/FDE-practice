@@ -1,0 +1,31 @@
+{
+  "collectionId": "gdrive-governed-connector",
+  "collectionDisplayName": "Google Drive (SDP Governed)",
+  "dataConnector": {
+    "dataSource": "google_drive",
+    "tag": "gdrive-prod",
+    "params": {
+      "admin_filter": {
+        "SharedDriveIds": [
+          "<SHARED_DRIVE_ID>"
+        ],
+        "FolderIds": [
+          "<FOLDER_ID>"
+        ]
+      }
+    },
+    "entities": [
+      {
+        "entityName": "google_drive"
+      }
+    ],
+    "connectorModes": [
+      "FEDERATED"
+    ],
+    "dataProtectionPolicy": {
+      "sensitiveDataProtectionPolicy": {
+        "policy": "projects/<PROJECT_ID>/locations/global/contentPolicies/gdrive-enterprise-sdp-policy"
+      }
+    }
+  }
+}
