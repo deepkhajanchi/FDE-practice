@@ -42,3 +42,7 @@ cd "agents/salesforce-agent" && uv sync && uv run pytest tests/unit
 # Verify github-agent (McpToolset + API-Key / 3LO AuthProvider)
 cd "../github-agent" && uv run --with pytest --with-requirements agent/requirements.txt pytest tests/unit
 ```
+https://docs.cloud.google.com/iam/docs/auth-manager-overview
+https://docs.cloud.google.com/iam/docs/auth-with-api-key
+https://docs.cloud.google.com/iam/docs/auth-with-2lo
+https://docs.cloud.google.com/iam/docs/auth-with-3lo
