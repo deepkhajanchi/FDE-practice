@@ -1,0 +1,19 @@
+# Environment & secrets (never commit credentials or PATs)
+.env
+.env.*
+!.env.example
+
+# Python & uv virtual environments
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Deployment & Terraform state
+deployment_metadata.json
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
